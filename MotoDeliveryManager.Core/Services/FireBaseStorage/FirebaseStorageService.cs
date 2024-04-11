@@ -10,11 +10,11 @@ namespace MotoDeliveryManager.Domain.Services.FirebaseStorage
 {
     public class FirebaseStorageService : IFirebaseStorageService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfigurationSection _firebaseConfig;
 
-        public FirebaseStorageService(IConfiguration configuration)
+        public FirebaseStorageService(IConfigurationSection firebaseConfig)
         {
-            _configuration = configuration;
+            _firebaseConfig = firebaseConfig;
         }
 
         public async Task<string> UploadImageAsync(byte[] imageData)
@@ -26,22 +26,22 @@ namespace MotoDeliveryManager.Domain.Services.FirebaseStorage
 
             try
             {
+                // Obter as configurações do Firebase
+                var apiKey = _firebaseConfig["ApiKey"];
+                var bucket = _firebaseConfig["Bucket"];
+                var authEmail = _firebaseConfig["AuthEmail"];
+                var authPassword = _firebaseConfig["AuthPassword"];
+
+                // Autenticar com o Firebase
+                var credential = GoogleCredential.FromJson($"{{\"apiKey\":\"{apiKey}\",\"authDomain\":\"{bucket}.firebaseapp.com\",\"projectId\":\"{bucket}\"}}");
+                var storage = StorageClient.Create(credential);
+
+                // Upload da imagem
                 using (var stream = new MemoryStream(imageData))
                 {
-                    string projectId = _configuration["Firestore:ProjectId"];
-                    string credentialsJson = _configuration["Firestore:CredentialsJson"];
-
-                    GoogleCredential credential = GoogleCredential.FromJson(credentialsJson);
-                    StorageClient storageClient = StorageClient.Create(credential);
-
-                    string bucketName = $"{projectId}.appspot.com";
-
-                    string imageName = $"{Guid.NewGuid()}.png";
-                    string imagePath = $"images/{imageName}";
-
-                    storageClient.UploadObject(bucketName, imagePath, null, stream);
-
-                    return imagePath;
+                    var objectName = Guid.NewGuid().ToString(); // Nome do objeto no Firebase Storage
+                    await storage.UploadObjectAsync(bucket, objectName, null, stream);
+                    return $"https://storage.googleapis.com/{bucket}/{objectName}"; // URL do objeto no Firebase Storage
                 }
             }
             catch (Exception ex)

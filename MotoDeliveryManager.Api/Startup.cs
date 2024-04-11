@@ -10,6 +10,7 @@ using MotoDeliveryManager.Domain.Interfaces.Services;
 using MotoDeliveryManager.Domain.Services;
 using MotoDeliveryManager.Infra.Repositories;
 using MotoDeliveryManager.Domain.Services.RabbitMq;
+using MotoDeliveryManager.Domain.Services.FirebaseStorage;
 
 
 namespace MotoDeliveryManager.Api
@@ -49,6 +50,12 @@ namespace MotoDeliveryManager.Api
             services.AddScoped<INotificacaoRepository, NotificacaoRepository>();
             services.AddScoped<IPedidoService, PedidoService>();
             services.AddScoped<IPedidoRepository, PedidoRepository>();
+
+            services.AddScoped<IFirebaseStorageService>(provider =>
+            {
+                var firebaseConfig = Configuration.GetSection("Firebase");
+                return new FirebaseStorageService(firebaseConfig);
+            });
 
             // Adicionar Swagger
             services.AddSwaggerGen(c =>
