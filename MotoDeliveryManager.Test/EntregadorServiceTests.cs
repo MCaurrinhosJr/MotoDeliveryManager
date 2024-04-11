@@ -22,7 +22,9 @@ namespace MotoDeliveryManager.Test
             // Arrange
             var mockRepository = new Mock<IEntregadorRepository>();
             var mockFirebaseStorageService = new Mock<IFirebaseStorageService>();
-            var entregadorService = new EntregadorService(mockRepository.Object, mockFirebaseStorageService.Object);
+            var mockLocacaoService = new Mock<ILocacaoService>();
+            var mockPedidoService = new Mock<IPedidoService>();
+            var entregadorService = new EntregadorService(mockRepository.Object, mockFirebaseStorageService.Object, mockLocacaoService.Object, mockPedidoService.Object);
 
             // Configure o mock do método UploadImageAsync para retornar uma URL simulada
             mockFirebaseStorageService.Setup(service => service.UploadImageAsync(It.IsAny<byte[]>()))
@@ -63,7 +65,9 @@ namespace MotoDeliveryManager.Test
             // Arrange
             var mockRepository = new Mock<IEntregadorRepository>();
             var mockFirebaseStorageService = new Mock<IFirebaseStorageService>();
-            var entregadorService = new EntregadorService(mockRepository.Object, mockFirebaseStorageService.Object);
+            var mockLocacaoService = new Mock<ILocacaoService>();
+            var mockPedidoService = new Mock<IPedidoService>();
+            var entregadorService = new EntregadorService(mockRepository.Object, mockFirebaseStorageService.Object, mockLocacaoService.Object, mockPedidoService.Object);
 
             // Configure o mock do método UploadImageAsync para retornar uma URL simulada
             mockFirebaseStorageService.Setup(service => service.UploadImageAsync(It.IsAny<byte[]>()))
@@ -93,6 +97,84 @@ namespace MotoDeliveryManager.Test
 
             // Assert
             mockRepository.Verify(repo => repo.UpdateAsync(entregador), Times.Once);
+        }
+
+        [Test]
+        public async Task RemoveEntregadorAsync_EntregadorExistsAndNoAssociations_EntregadorRemovedSuccessfully()
+        {
+            // Arrange
+            var mockRepository = new Mock<IEntregadorRepository>();
+            var mockLocacaoService = new Mock<ILocacaoService>();
+            var mockPedidoService = new Mock<IPedidoService>();
+            var entregadorService = new EntregadorService(mockRepository.Object, null, mockLocacaoService.Object, mockPedidoService.Object);
+
+            int entregadorId = 1;
+
+            // Mocking behavior for GetByIdAsync to return an existing entregador
+            mockRepository.Setup(repo => repo.GetByIdAsync(entregadorId))
+                .ReturnsAsync(new Entregador());
+
+            // Mocking behavior for GetLocacoesByEntregadorIdAsync and GetPedidosByEntregadorIdAsync to return empty lists
+            mockLocacaoService.Setup(service => service.GetLocacoesByEntregadorIdAsync(entregadorId))
+                .ReturnsAsync(new List<Locacao>());
+            mockPedidoService.Setup(service => service.GetPedidosByEntregadorIdAsync(entregadorId))
+                .ReturnsAsync(new List<Pedido>());
+
+            // Act
+            await entregadorService.RemoveEntregadorAsync(entregadorId);
+
+            // Assert
+            mockRepository.Verify(repo => repo.RemoveAsync(entregadorId), Times.Once);
+        }
+
+        [Test]
+        public void RemoveEntregadorAsync_EntregadorDoesNotExist_ThrowsKeyNotFoundException()
+        {
+            // Arrange
+            var mockRepository = new Mock<IEntregadorRepository>();
+            var mockLocacaoService = new Mock<ILocacaoService>();
+            var mockPedidoService = new Mock<IPedidoService>();
+            var entregadorService = new EntregadorService(mockRepository.Object, null, mockLocacaoService.Object, mockPedidoService.Object);
+
+            int entregadorId = 1;
+
+            // Mocking behavior for GetByIdAsync to return null, simulating that the entregador does not exist
+            mockRepository.Setup(repo => repo.GetByIdAsync(entregadorId))
+                .ReturnsAsync((Entregador)null);
+
+            // Act & Assert
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                await entregadorService.RemoveEntregadorAsync(entregadorId);
+            });
+        }
+
+        [Test]
+        public void RemoveEntregadorAsync_EntregadorHasAssociations_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var mockRepository = new Mock<IEntregadorRepository>();
+            var mockLocacaoService = new Mock<ILocacaoService>();
+            var mockPedidoService = new Mock<IPedidoService>();
+            var entregadorService = new EntregadorService(mockRepository.Object, null, mockLocacaoService.Object, mockPedidoService.Object);
+
+            int entregadorId = 1;
+
+            // Mocking behavior for GetByIdAsync to return an existing entregador
+            mockRepository.Setup(repo => repo.GetByIdAsync(entregadorId))
+                .ReturnsAsync(new Entregador());
+
+            // Mocking behavior for GetLocacoesByEntregadorIdAsync and GetPedidosByEntregadorIdAsync to return non-empty lists, simulating associations
+            mockLocacaoService.Setup(service => service.GetLocacoesByEntregadorIdAsync(entregadorId))
+                .ReturnsAsync(new List<Locacao> { new Locacao() });
+            mockPedidoService.Setup(service => service.GetPedidosByEntregadorIdAsync(entregadorId))
+                .ReturnsAsync(new List<Pedido> { new Pedido() });
+
+            // Act & Assert
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                await entregadorService.RemoveEntregadorAsync(entregadorId);
+            });
         }
     }
 }

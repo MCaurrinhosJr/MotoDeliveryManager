@@ -11,6 +11,7 @@ using MotoDeliveryManager.Domain.Services;
 using MotoDeliveryManager.Infra.Repositories;
 using MotoDeliveryManager.Domain.Services.RabbitMq;
 using MotoDeliveryManager.Domain.Services.FirebaseStorage;
+using MotoDeliveryManager.Infra.Profiles;
 
 
 namespace MotoDeliveryManager.Api
@@ -56,6 +57,8 @@ namespace MotoDeliveryManager.Api
                 var firebaseConfig = Configuration.GetSection("Firebase");
                 return new FirebaseStorageService(firebaseConfig);
             });
+
+            services.AddAutoMapper(typeof(MappingProfile));
 
             // Adicionar Swagger
             services.AddSwaggerGen(c =>
