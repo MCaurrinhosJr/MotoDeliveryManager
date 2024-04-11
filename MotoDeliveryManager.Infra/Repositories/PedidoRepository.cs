@@ -47,5 +47,10 @@ namespace MotoDeliveryManager.Infra.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Pedido>> GetPedidosByEntregadorIdAsync(int id)
+        {
+            return await _context.Pedidos.Where(p => p.EntregadorId == id).ToListAsync();
+        }
     }
 }

@@ -109,5 +109,10 @@ namespace MotoDeliveryManager.Domain.Services
             pedido.EntregadorId = entregadorId;
             await _pedidoRepository.UpdateAsync(pedido);
         }
+
+        public Task<List<Pedido>> GetPedidosByEntregadorIdAsync(int id)
+        {
+            return _pedidoRepository.GetPedidosByEntregadorIdAsync(id);
+        }
     }
 }

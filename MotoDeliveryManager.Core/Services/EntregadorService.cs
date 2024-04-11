@@ -9,12 +9,16 @@ namespace MotoDeliveryManager.Domain.Services
     public class EntregadorService : IEntregadorService
     {
         private readonly IEntregadorRepository _entregadorRepository;
+        private readonly ILocacaoService _locacaoService;
+        private readonly IPedidoService _pedidoService;
         private readonly IFirebaseStorageService _firebaseStorageService;
 
-        public EntregadorService(IEntregadorRepository entregadorRepository, IFirebaseStorageService firebaseStorageService)
+        public EntregadorService(IEntregadorRepository entregadorRepository, IFirebaseStorageService firebaseStorageService, ILocacaoService locacaoService, IPedidoService pedidoService)
         {
             _entregadorRepository = entregadorRepository;
             _firebaseStorageService = firebaseStorageService;
+            _locacaoService = locacaoService;
+            _pedidoService = pedidoService;
         }
 
         public async Task<List<Entregador>> GetAllEntregadoresAsync()
@@ -75,7 +79,17 @@ namespace MotoDeliveryManager.Domain.Services
             }
 
             // Verificar se o entregador tem associações com locações ou pedidos antes de remover
-            // Implemente essa lógica de acordo com sua aplicação
+            var existingLocacao = await _locacaoService.GetLocacoesByEntregadorIdAsync(id);
+            if (existingLocacao.Any())
+            {
+                throw new KeyNotFoundException($"Entregador possoi Locações.");
+            }
+
+            var existingPedidos = await _pedidoService.GetPedidosByEntregadorIdAsync(id);
+            if (existingPedidos.Any())
+            {
+                throw new InvalidOperationException("Não é possível remover este entregador porque ele está associado a um ou mais pedidos.");
+            }
 
             await _entregadorRepository.RemoveAsync(id);
         }

@@ -11,5 +11,6 @@ namespace MotoDeliveryManager.Domain.Interfaces.Services
         Task EntregarPedidoAsync(int id, Pedido pedido, int entregadorId);
         Task AceitarPedidoAsync(int id, Pedido pedido, int entregadorId);
         Task RemovePedidoAsync(int id);
+        Task<List<Pedido>> GetPedidosByEntregadorIdAsync(int id);
     }
 }

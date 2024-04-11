@@ -46,5 +46,12 @@ namespace MotoDeliveryManager.Infra.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Locacao>> GetAllByEntregadorIdAsync(int id)
+        {
+            return await _context.Locacoes
+                        .Where(l => l.EntregadorId == id)
+                        .ToListAsync();
+        }
     }
 }

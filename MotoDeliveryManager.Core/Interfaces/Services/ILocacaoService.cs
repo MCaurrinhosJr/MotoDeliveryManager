@@ -8,5 +8,6 @@ namespace MotoDeliveryManager.Domain.Interfaces.Services
         Task<Locacao> GetLocacaoByIdAsync(int id);
         Task<Locacao> AlugarMotoAsync(AluguelRequest request);
         Task DevolverMotoAsync(DevolucaoRequest request);
+        Task<List<Locacao>> GetLocacoesByEntregadorIdAsync(int id);
     }
 }

@@ -128,5 +128,9 @@ namespace MotoDeliveryManager.Domain.Services
             await _locacaoRepository.UpdateAsync(locacao);
         }
 
+        public async Task<List<Locacao>> GetLocacoesByEntregadorIdAsync(int id)
+        {
+            return await _locacaoRepository.GetAllByEntregadorIdAsync(id);
+        }
     }
 }

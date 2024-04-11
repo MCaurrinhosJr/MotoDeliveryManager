@@ -9,5 +9,6 @@ namespace MotoDeliveryManager.Domain.Interfaces.Repositories
         Task<Pedido> AddAsync(Pedido pedido);
         Task<Pedido> UpdateAsync(Pedido pedido);
         Task RemoveAsync(int id);
+        Task<List<Pedido>> GetPedidosByEntregadorIdAsync(int id);
     }
 }
