@@ -1,4 +1,11 @@
 ﻿using NUnit.Framework;
+using Moq;
+using MotoDeliveryManager.Domain.Interfaces.Repositories;
+using MotoDeliveryManager.Domain.Models;
+using MotoDeliveryManager.Domain.Services;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MotoDeliveryManager.Test
 {
@@ -6,27 +13,110 @@ namespace MotoDeliveryManager.Test
     public class MotoTest
     {
         [Test]
-        public void AddMoto_ValidMotoData_MotoAddedSuccessfully()
+        public async Task AddMoto_ValidMotoData_MotoAddedSuccessfullyAsync()
         {
-            // Implementação dos testes para adicionar uma nova moto
+            // Arrange
+            var mockRepository = new Mock<IMotoRepository>();
+            var motoService = new MotoService(mockRepository.Object);
+
+            var motoToAdd = new Moto
+            {
+                Placa = "ABC1234",
+                Marca = "Honda",
+                Modelo = "CB300",
+                Ano = "2020"
+            };
+
+            mockRepository.Setup(repo => repo.GetByPlacaAsync(motoToAdd.Placa))
+                .ReturnsAsync(new List<Moto>());
+
+            mockRepository.Setup(repo => repo.AddAsync(It.IsAny<Moto>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await motoService.AddMotoAsync(motoToAdd);
+
+            // Assert
+            mockRepository.Verify(repo => repo.AddAsync(motoToAdd), Times.Once);
         }
 
         [Test]
-        public void GetMotos_FilterByPlate_ReturnFilteredMotos()
+        public async Task GetMotos_FilterByPlate_ReturnFilteredMotos()
         {
-            // Implementação dos testes para consultar motos filtrando por placa
+            // Arrange
+            var mockRepository = new Mock<IMotoRepository>();
+            var motoService = new MotoService(mockRepository.Object);
+
+            var plateToFilter = "ABC1234";
+            var expectedMotos = new List<Moto>
+            {
+                new Moto { Placa = plateToFilter },
+                new Moto { Placa = plateToFilter }
+            };
+
+            mockRepository.Setup(repo => repo.GetByPlacaAsync(plateToFilter))
+                .ReturnsAsync(expectedMotos);
+
+            // Act
+            var result = await motoService.GetMotosByPlacaAsync(plateToFilter);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedMotos.Count, result.Count);
         }
 
         [Test]
-        public void UpdateMoto_ChangePlateOnly_PlateUpdatedSuccessfully()
+        public async Task UpdateMoto_ChangePlateOnly_PlateUpdatedSuccessfully()
         {
-            // Implementação dos testes para atualizar a placa de uma moto
+            // Arrange
+            var mockRepository = new Mock<IMotoRepository>();
+            var motoService = new MotoService(mockRepository.Object);
+
+            var existingMoto = new Moto
+            {
+                Id = 1,
+                Placa = "ABC1234",
+                Marca = "Honda",
+                Modelo = "CB300",
+                Ano = "2020"
+            };
+
+            var newPlate = "XYZ5678";
+
+            mockRepository.Setup(repo => repo.GetByIdAsync(existingMoto.Id))
+                .ReturnsAsync(existingMoto);
+
+            mockRepository.Setup(repo => repo.GetByPlacaAsync(newPlate))
+                .ReturnsAsync(new List<Moto>());
+
+            // Act
+            await motoService.UpdateMotoAsync(existingMoto.Id, new Moto { Placa = newPlate });
+
+            // Assert
+            var updatedMoto = await motoService.GetMotoByIdAsync(existingMoto.Id);
+            Assert.AreEqual(newPlate, updatedMoto.Placa);
         }
 
         [Test]
-        public void RemoveMoto_ValidMotoId_MotoRemovedSuccessfully()
+        public async Task RemoveMoto_ValidMotoId_MotoRemovedSuccessfully()
         {
-            // Implementação dos testes para remover uma moto
+            // Arrange
+            var mockRepository = new Mock<IMotoRepository>();
+            var motoService = new MotoService(mockRepository.Object);
+
+            var motoIdToRemove = 1;
+
+            mockRepository.Setup(repo => repo.GetByIdAsync(motoIdToRemove))
+                .ReturnsAsync(new Moto());
+
+            mockRepository.Setup(repo => repo.RemoveAsync(motoIdToRemove))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await motoService.RemoveMotoAsync(motoIdToRemove);
+
+            // Assert
+            mockRepository.Verify(repo => repo.RemoveAsync(motoIdToRemove), Times.Once);
         }
     }
 }

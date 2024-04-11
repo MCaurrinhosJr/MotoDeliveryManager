@@ -24,10 +24,11 @@ namespace MotoDeliveryManager.Infra.Repositories
             return await _context.Locacoes.FindAsync(id);
         }
 
-        public async Task AddAsync(Locacao locacao)
+        public async Task<Locacao> AddAsync(Locacao locacao)
         {
             _context.Locacoes.Add(locacao);
             await _context.SaveChangesAsync();
+            return locacao;
         }
 
         public async Task UpdateAsync(Locacao locacao)

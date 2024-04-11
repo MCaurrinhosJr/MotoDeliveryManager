@@ -1,13 +1,14 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Configuration;
+using MotoDeliveryManager.Domain.Interfaces.Services;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace MotoDeliveryManager.Domain.Services.FirebaseStorage
 {
-    public class FirebaseStorageService
+    public class FirebaseStorageService : IFirebaseStorageService
     {
         private readonly IConfiguration _configuration;
 

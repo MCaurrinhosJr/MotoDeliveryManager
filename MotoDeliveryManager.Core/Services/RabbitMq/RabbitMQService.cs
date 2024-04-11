@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using MotoDeliveryManager.Domain.Interfaces.Services;
 using MotoDeliveryManager.Domain.Models;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace MotoDeliveryManager.Domain.Services.RabbitMq
 {
-    public class RabbitMQService
+    public class RabbitMQService : IRabbitMQService
     {
         private readonly IConfiguration _configuration;
         private readonly ConnectionFactory _connectionFactory;
@@ -44,15 +45,16 @@ namespace MotoDeliveryManager.Domain.Services.RabbitMq
             return true;
         }
 
-        public void EnviarNotificacaoPedidoDisponivel(Pedido pedido)
+        public async Task EnviarNotificacaoPedidoDisponivel(Pedido pedido)
         {
             var mensagem = JsonConvert.SerializeObject(pedido);
-            EnviarMensagemParaFila(mensagem);
+            await EnviarMensagemParaFilaAsync(mensagem);
         }
-        public void EnviarMensagemParaFila(string mensagem)
+
+        public async Task EnviarMensagemParaFilaAsync(string mensagem)
         {
             var body = Encoding.UTF8.GetBytes(mensagem);
-            _channel.BasicPublish(exchange: "", routingKey: FilaPedidos, basicProperties: null, body: body);
+            await Task.Run(() => _channel.BasicPublish(exchange: "", routingKey: FilaPedidos, basicProperties: null, body: body));
         }
 
         public void Dispose()

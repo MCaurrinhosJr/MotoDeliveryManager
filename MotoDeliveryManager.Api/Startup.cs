@@ -38,7 +38,7 @@ namespace MotoDeliveryManager.Api
                 options.UseNpgsql(connectionString));
 
             services.AddSingleton<RabbitMQService>();
-
+            services.AddScoped<IRabbitMQService, RabbitMQService>();
             services.AddScoped<IEntregadorService, EntregadorService>();
             services.AddScoped<IEntregadorRepository, EntregadorRepository>();
             services.AddScoped<ILocacaoService, LocacaoService>();

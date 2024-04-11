@@ -55,13 +55,22 @@ namespace MotoDeliveryManager.Domain.Services
             if (existingMoto == null)
                 throw new KeyNotFoundException($"Moto com ID {id} não encontrada.");
 
-            var existingMotos = await _motoRepository.GetByPlacaAsync(moto.Placa);
-            if (existingMotos.Any())
+            // Verifica se há outras motos com a mesma placa
+            var existingMotosWithSamePlaca = await _motoRepository.GetByPlacaAsync(moto.Placa);
+            var otherMotosWithSamePlaca = existingMotosWithSamePlaca.Where(m => m.Id != id);
+
+            if (otherMotosWithSamePlaca.Any())
             {
                 throw new InvalidOperationException("Já existe uma moto cadastrada com essa nova placa.");
             }
 
-            await _motoRepository.UpdateAsync(moto);
+            // Atualiza os dados da moto
+            existingMoto.Placa = moto.Placa;
+            existingMoto.Marca = moto.Marca;
+            existingMoto.Modelo = moto.Modelo;
+            existingMoto.Ano = moto.Ano;
+
+            await _motoRepository.UpdateAsync(existingMoto);
         }
 
         public async Task RemoveMotoAsync(int id)

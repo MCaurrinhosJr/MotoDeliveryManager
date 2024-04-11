@@ -9,10 +9,9 @@ namespace MotoDeliveryManager.Domain.Services
     public class EntregadorService : IEntregadorService
     {
         private readonly IEntregadorRepository _entregadorRepository;
-        private readonly FirebaseStorageService _firebaseStorageService;
+        private readonly IFirebaseStorageService _firebaseStorageService;
 
-
-        public EntregadorService(IEntregadorRepository entregadorRepository, FirebaseStorageService firebaseStorageService)
+        public EntregadorService(IEntregadorRepository entregadorRepository, IFirebaseStorageService firebaseStorageService)
         {
             _entregadorRepository = entregadorRepository;
             _firebaseStorageService = firebaseStorageService;

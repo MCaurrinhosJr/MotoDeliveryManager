@@ -9,9 +9,9 @@ namespace MotoDeliveryManager.Domain.Services
     public class PedidoService : IPedidoService
     {
         private readonly IPedidoRepository _pedidoRepository;
-        private readonly RabbitMQService _rabbitMQService;
+        private readonly IRabbitMQService _rabbitMQService;
 
-        public PedidoService(IPedidoRepository pedidoRepository, RabbitMQService rabbitMQService)
+        public PedidoService(IPedidoRepository pedidoRepository, IRabbitMQService rabbitMQService)
         {
             _pedidoRepository = pedidoRepository;
             _rabbitMQService = rabbitMQService;

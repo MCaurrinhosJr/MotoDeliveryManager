@@ -6,7 +6,7 @@ namespace MotoDeliveryManager.Domain.Interfaces.Repositories
     {
         Task<List<Locacao>> GetAllAsync();
         Task<Locacao> GetByIdAsync(int id);
-        Task AddAsync(Locacao locacao);
+        Task<Locacao> AddAsync(Locacao locacao);
         Task UpdateAsync(Locacao locacao);
         Task RemoveAsync(int id);
     }

@@ -26,14 +26,13 @@ namespace MotoDeliveryManager.Domain.Services
 
         public async Task<Locacao> AlugarMotoAsync(AluguelRequest request)
         {
-            // Verificar se a data de término é posterior à data de início
-            if (request.DataTerminoPrevista <= request.DataInicio)
+            if (request.DataTerminoPrevista.Date <= request.DataInicio.Date)
             {
                 throw new ArgumentException("A data de término deve ser posterior à data de início.");
             }
 
             // Calcular o número de dias da locação
-            var diasLocacao = (int)(request.DataTerminoPrevista - request.DataInicio).TotalDays;
+            var diasLocacao = (int)(request.DataTerminoPrevista.Date - request.DataInicio.Date).TotalDays;
 
             // Calcular o valor total da locação com base nos planos disponíveis
             decimal valorTotal;
@@ -75,11 +74,11 @@ namespace MotoDeliveryManager.Domain.Services
             }
 
             // Verificar se a data de devolução é anterior à data prevista de término da locação
-            if (request.DataDevolucao < locacao.DataTerminoPrevista)
+            if (request.DataDevolucao.Date < locacao.DataTerminoPrevista.Date)
             {
                 // Calcular a multa conforme o plano escolhido
                 decimal multa;
-                switch ((int)(locacao.DataTerminoPrevista - request.DataDevolucao).TotalDays)
+                switch ((int)(locacao.DataTerminoPrevista.Date - request.DataDevolucao.Date).TotalDays)
                 {
                     case 7:
                         multa = locacao.ValorTotalPrecisto * 0.2m; // 20% do valor total
@@ -97,14 +96,27 @@ namespace MotoDeliveryManager.Domain.Services
                 // Cobrar a multa do entregador
                 locacao.ValorTotal += multa;
             }
-            else if (request.DataDevolucao > locacao.DataTerminoPrevista)
+            else if (request.DataDevolucao.Date > locacao.DataTerminoPrevista.Date)
             {
-                // Calcular o valor adicional por diária extra
-                var diasExtras = (int)(request.DataDevolucao - locacao.DataTerminoPrevista).TotalDays;
-                var valorDiariaExtra = 50; // Valor adicional por diária extra
+                // Verificar se a duração da locação corresponde a um dos planos disponíveis
+                int diasLocacao = (int)(locacao.DataTerminoPrevista.Date - locacao.DataInicio.Date).TotalDays;
+                switch (diasLocacao)
+                {
+                    case 7:
+                    case 15:
+                    case 30:
+                        // Calcular o número de dias extras
+                        var diasExtras = (int)(request.DataDevolucao.Date - locacao.DataTerminoPrevista.Date).TotalDays;
 
-                // Cobrar o valor adicional por diária extra do entregador
-                locacao.ValorTotal += diasExtras * valorDiariaExtra;
+                        // Calcular o valor adicional por diária extra
+                        var valorDiariaExtra = 50; // Valor adicional por diária extra
+
+                        // Cobrar o valor adicional por diária extra do entregador
+                        locacao.ValorTotal += diasExtras * valorDiariaExtra;
+                        break;
+                    default:
+                        throw new ArgumentException("A duração da locação não corresponde a nenhum dos planos disponíveis.");
+                }
             }
 
             // Atualizar a data de término real e o status da locação
