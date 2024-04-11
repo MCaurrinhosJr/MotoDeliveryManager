@@ -82,7 +82,7 @@ namespace MotoDeliveryManager.Domain.Services
             var existingLocacao = await _locacaoService.GetLocacoesByEntregadorIdAsync(id);
             if (existingLocacao.Any())
             {
-                throw new KeyNotFoundException($"Entregador possoi Locações.");
+                throw new KeyNotFoundException($"Não é possível remover este entregador porque ele está associado a uma ou mais locações.");
             }
 
             var existingPedidos = await _pedidoService.GetPedidosByEntregadorIdAsync(id);
