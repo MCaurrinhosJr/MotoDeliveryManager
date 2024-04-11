@@ -32,7 +32,7 @@ CREATE TABLE "Locacao" (
     "DataInicio" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "DataTerminoPrevista" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     "DataTerminoReal" TIMESTAMP WITHOUT TIME ZONE,
-    "ValorTotalPrecisto" NUMERIC(18,2) NOT NULL,
+    "ValorTotalPrevisto" NUMERIC(18,2) NOT NULL,
     "ValorTotal" NUMERIC(18,2),
     "EntregadorId" INT NOT NULL,
     "MotoId" INT NOT NULL,

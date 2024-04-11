@@ -55,7 +55,7 @@ namespace MotoDeliveryManager.Domain.Services
             {
                 DataInicio = request.DataInicio,
                 DataTerminoPrevista = request.DataTerminoPrevista,
-                ValorTotalPrecisto = valorTotal,
+                ValorTotalPrevisto = valorTotal,
                 EntregadorId = request.EntregadorId,
                 MotoId = request.MotoId,
                 Status = StatusLocacao.Ativa
@@ -73,21 +73,23 @@ namespace MotoDeliveryManager.Domain.Services
                 throw new ArgumentException("Locação não encontrada.");
             }
 
+            locacao.ValorTotal = locacao.ValorTotalPrevisto;
+
             // Verificar se a data de devolução é anterior à data prevista de término da locação
             if (request.DataDevolucao.Date < locacao.DataTerminoPrevista.Date)
             {
                 // Calcular a multa conforme o plano escolhido
                 decimal multa;
-                switch ((int)(locacao.DataTerminoPrevista.Date - request.DataDevolucao.Date).TotalDays)
+                switch ((int)(locacao.DataTerminoPrevista.Date - locacao.DataInicio.Date).TotalDays)
                 {
                     case 7:
-                        multa = locacao.ValorTotalPrecisto * 0.2m; // 20% do valor total
+                        multa = locacao.ValorTotalPrevisto * 0.2m; // 20% do valor total
                         break;
                     case 15:
-                        multa = locacao.ValorTotalPrecisto * 0.4m; // 40% do valor total
+                        multa = locacao.ValorTotalPrevisto * 0.4m; // 40% do valor total
                         break;
                     case 30:
-                        multa = locacao.ValorTotalPrecisto * 0.6m; // 60% do valor total
+                        multa = locacao.ValorTotalPrevisto * 0.6m; // 60% do valor total
                         break;
                     default:
                         throw new ArgumentException("A duração da locação não corresponde a nenhum dos planos disponíveis.");

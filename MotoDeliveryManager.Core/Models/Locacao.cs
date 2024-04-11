@@ -20,7 +20,7 @@ namespace MotoDeliveryManager.Domain.Models
 
         [Required(ErrorMessage = "O valor total precisto é obrigatório.")]
         [Range(0, double.MaxValue, ErrorMessage = "O valor total precisto deve ser maior ou igual a zero.")]
-        public decimal ValorTotalPrecisto { get; set; }
+        public decimal ValorTotalPrevisto { get; set; }
 
         public decimal? ValorTotal { get; set; }
 
@@ -53,4 +53,5 @@ namespace MotoDeliveryManager.Domain.Models
         public int LocacaoId { get; set; }
         public DateTime DataDevolucao { get; set; }
     }
+
 }
