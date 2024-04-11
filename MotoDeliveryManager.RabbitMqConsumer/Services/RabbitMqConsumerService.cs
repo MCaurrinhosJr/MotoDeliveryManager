@@ -18,10 +18,12 @@ namespace MotoDeliveryManager.RabbitMqConsumer.Services
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private const string FilaPedidos = "pedidos";
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public RabbitMqConsumerService(IConfiguration configuration)
+        public RabbitMqConsumerService(IConfiguration configuration, IServiceScopeFactory serviceScopeFactory)
         {
             _configuration = configuration;
+            _serviceScopeFactory = serviceScopeFactory;
 
             // Obter as configurações do RabbitMQ do appsettings.json
             var rabbitMQConfig = _configuration.GetSection("ConnectionStrings:RabbitMQ");
@@ -79,24 +81,31 @@ namespace MotoDeliveryManager.RabbitMqConsumer.Services
         {
             Pedido pedido = JsonConvert.DeserializeObject<Pedido>(message);
 
-            var entregadoresAptos = await ObterEntregadoresAptos();
-
-            foreach (var entregador in entregadoresAptos)
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                string mensagemNotificacao = $"Novo pedido disponível: ID {pedido.Id}";
-            
-                //await _notificacaoService.EnviarNotificacaoAsync(entregador.Id, pedido.Id, mensagemNotificacao);
+                var _notificacaoService = scope.ServiceProvider.GetRequiredService<INotificacaoService>();
+                var _locacaoService = scope.ServiceProvider.GetRequiredService<ILocacaoService>();
+                
+
+                var entregadoresAptos = await ObterEntregadoresAptos(_locacaoService);
+
+                foreach (var entregador in entregadoresAptos)
+                {
+                    string mensagemNotificacao = $"Novo pedido disponível: ID {pedido.Id}";
+
+                    await _notificacaoService.EnviarNotificacaoAsync(entregador.Id, pedido.Id, mensagemNotificacao);
+                }
             }
+            
         }
 
-        private async Task<List<Entregador>> ObterEntregadoresAptos()
+        private async Task<List<Entregador>> ObterEntregadoresAptos(ILocacaoService _locacaoService)
         {
-            //var locacoesAtivas = await _locacaoService.GetAllLocacoesAsync();
-            //
-            //var entregadoresAtivos = locacoesAtivas.Where(l => l.Status == Domain.Models.Enum.StatusLocacao.Ativa).Select(l => l.Entregador).Distinct().ToList();
+            var locacoesAtivas = await _locacaoService.GetAllLocacoesAsync();
+            
+            var entregadoresAtivos = locacoesAtivas.Where(l => l.Status == Domain.Models.Enum.StatusLocacao.Ativa).Select(l => l.Entregador).Distinct().ToList();
 
-            //return entregadoresAtivos;
-            return [];
+            return entregadoresAtivos;
         }
     }
 }
