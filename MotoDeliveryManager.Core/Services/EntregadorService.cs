@@ -3,6 +3,7 @@ using MotoDeliveryManager.Domain.Interfaces.Services;
 using MotoDeliveryManager.Domain.Models;
 using MotoDeliveryManager.Domain.Models.Enum;
 using MotoDeliveryManager.Domain.Services.FirebaseStorage;
+using System.Text.RegularExpressions;
 
 namespace MotoDeliveryManager.Domain.Services
 {
@@ -34,6 +35,16 @@ namespace MotoDeliveryManager.Domain.Services
         public async Task AddEntregadorAsync(Entregador entregador)
         {
             ValidateEntregador(entregador);
+
+            if (!ValidaCnpj(entregador.CNPJ))
+            {
+                throw new InvalidOperationException("O numero do CNPJ informado é invalido.");
+            }
+
+            if (!ValidaCNH(entregador.NumeroCNH))
+            {
+                throw new InvalidOperationException("O numero da CNH informado é invalido.");
+            }
 
             var existingCnpj = await _entregadorRepository.GetByCnpjAsync(entregador.CNPJ);
             if (existingCnpj != null)
@@ -160,12 +171,84 @@ namespace MotoDeliveryManager.Domain.Services
             {
                 throw new ArgumentException("O tipo da CNH do entregador é inválido.", nameof(entregador.TipoCNH));
             }
+        }
 
-            // Validar se o CNPJ é único
-            // Adicionar lógica para verificar se o CNPJ já existe em outro entregador
+        private bool ValidaCnpj(string cnpj)
+        {
+            int[] multiplicador1 = new int[12] { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
+            int[] multiplicador2 = new int[13] { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
 
-            // Validar se o número da CNH é único
-            // Adicionar lógica para verificar se o número da CNH já existe em outro entregador
+            cnpj = cnpj.Trim().Replace(".", "").Replace("-", "").Replace("/", "");
+            if (cnpj.Length != 14)
+                return false;
+
+            string tempCnpj = cnpj.Substring(0, 12);
+            int soma = 0;
+
+            for (int i = 0; i < 12; i++)
+                soma += int.Parse(tempCnpj[i].ToString()) * multiplicador1[i];
+
+            int resto = (soma % 11);
+            if (resto < 2)
+                resto = 0;
+            else
+                resto = 11 - resto;
+
+            string digito = resto.ToString();
+            tempCnpj = tempCnpj + digito;
+            soma = 0;
+            for (int i = 0; i < 13; i++)
+                soma += int.Parse(tempCnpj[i].ToString()) * multiplicador2[i];
+
+            resto = (soma % 11);
+            if (resto < 2)
+                resto = 0;
+            else
+                resto = 11 - resto;
+
+            digito = digito + resto.ToString();
+
+            return cnpj.EndsWith(digito);
+        }
+
+        private bool ValidaCNH(string Cnh)
+        {
+            char primeiroDigito = Cnh[0];
+
+            if (Regex.Replace(Cnh, @"\D+", "").Length != 11 || string.Format("{0:D11}", 0).Replace('0', primeiroDigito) == Cnh)
+            {
+                return false;
+            }
+
+            long soma = 0, peso = 9;
+
+            for (int i = 0; i < 9; ++i, --peso)
+            {
+                soma += ((Cnh[i] - '0') * peso);
+            }
+
+            long desconto = 0, primeiroDV = soma % 11;
+
+            if (primeiroDV >= 10)
+            {
+                primeiroDV = 0;
+                desconto = 2;
+            }
+
+            soma = 0;
+            peso = 1;
+
+            for (int i = 0; i < 9; ++i, ++peso)
+            {
+                soma += ((Cnh[i] - '0') * peso);
+            }
+
+            long resto = soma % 11;
+            long segundoDV = (resto >= 10) ? 0 : resto - desconto;
+
+            string digitosVerificadores = primeiroDV.ToString() + segundoDV.ToString();
+
+            return digitosVerificadores == Cnh.Substring(Cnh.Length - 2);
         }
 
         #endregion
