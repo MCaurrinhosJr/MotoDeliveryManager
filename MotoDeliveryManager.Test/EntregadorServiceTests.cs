@@ -36,8 +36,8 @@ namespace MotoDeliveryManager.Test
             var entregador = new Entregador
             {
                 Nome = "João",
-                CNPJ = "12345678901234",
-                NumeroCNH = "123456789",
+                CNPJ = "79444529000154",
+                NumeroCNH = "92670019154",
                 DataNascimento = new DateTime(1990, 1, 1),
                 TipoCNH = TipoCNH.A,
                 CNHImage = new CNHImage { Data = imageDataBytes } // Dados simulados da imagem da CNH
