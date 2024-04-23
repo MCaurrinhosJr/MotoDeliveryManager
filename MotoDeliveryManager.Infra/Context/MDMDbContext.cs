@@ -44,8 +44,7 @@ namespace MotoDeliveryManager.Infra.Context
                 .HasIndex(e => e.NumeroCNH)
                 .IsUnique();
 
-            modelBuilder.Entity<CNHImage>().HasNoKey();
-            modelBuilder.Entity<Entregador>().Ignore(e => e.CNHImage);
+            modelBuilder.Ignore<CNHImage>();
         }
     }
 }
