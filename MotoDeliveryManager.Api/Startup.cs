@@ -31,11 +31,6 @@ namespace MotoDeliveryManager.Api
 
             var connectionString = Configuration.GetConnectionString("Banco");
 
-            using (var dbContext = new MDMDbContext(new DbContextOptionsBuilder<MDMDbContext>().UseNpgsql(connectionString).Options))
-            {
-                dbContext.Database.EnsureCreated();
-            }
-
             services.AddDbContext<MDMDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
@@ -97,6 +92,18 @@ namespace MotoDeliveryManager.Api
 
                 endpoints.MapControllers();
             });
+
+            StartMigration(app);
+        }
+
+        private static void StartMigration(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var dbContext = serviceScope.ServiceProvider.GetRequiredService<MDMDbContext>();
+            if (dbContext.Database.GetPendingMigrations().Any())
+            {
+                dbContext.Database.Migrate();
+            }
         }
     }
 }

@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MotoDeliveryManager.Api", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MotoDeliveryManager.RabbitMqConsumer", "MotoDeliveryManager.RabbitMqConsumer\MotoDeliveryManager.RabbitMqConsumer.csproj", "{F5BCC317-89BD-4845-96D2-ABF0672B6D03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MotoDeliveryManager.Test", "MotoDeliveryManager.Test\MotoDeliveryManager.Test.csproj", "{97FA5DE4-2EA9-4067-A583-C5D60612C1F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MotoDeliveryManager.Test", "MotoDeliveryManager.Test\MotoDeliveryManager.Test.csproj", "{97FA5DE4-2EA9-4067-A583-C5D60612C1F1}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{34E8DFEF-A069-4BC3-ADF5-63BAAAF59A7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{97FA5DE4-2EA9-4067-A583-C5D60612C1F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97FA5DE4-2EA9-4067-A583-C5D60612C1F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97FA5DE4-2EA9-4067-A583-C5D60612C1F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34E8DFEF-A069-4BC3-ADF5-63BAAAF59A7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34E8DFEF-A069-4BC3-ADF5-63BAAAF59A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34E8DFEF-A069-4BC3-ADF5-63BAAAF59A7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34E8DFEF-A069-4BC3-ADF5-63BAAAF59A7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

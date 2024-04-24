@@ -1,0 +1,71 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 30s
+      timeout: 30s
+      retries: 10
+    networks:
+      - services-network
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  postgresdb:
+    container_name: postgresdb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=MotoDeliveryManager
+    restart: always
+    ports:
+        - "5432:5432"
+    volumes:
+        - postgres_data:/var/lib/postgres/data/
+    networks:
+      - services-network
+
+  motodeliverymanager.api:
+    environment:
+      - ASPNETCORE_URLS=http://*:80
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:host=postgresdb;Port=5432;Database=MotoDeliveryManager;Username=postgres;Password=123;" 
+      - "RabbitMq:HostName=rabbitmq"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "1771:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - services-network
+
+  motodeliverymanager.rabbitmqconsumer:
+    environment:
+      - ASPNETCORE_URLS=http://*:81
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:host=postgresdb;Port=5432;Database=MotoDeliveryManager;Username=postgres;Password=123;"
+      - "RabbitMq:HostName=rabbitmq"
+    depends_on: 
+      rabbitmq:  
+        condition: service_healthy
+    ports:
+      - "1772:81"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - services-network
+
+networks:
+    services-network:
+        driver: bridge

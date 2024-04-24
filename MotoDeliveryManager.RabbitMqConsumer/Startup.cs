@@ -30,11 +30,6 @@ public class Startup
 
         var connectionString = Configuration.GetConnectionString("Banco");
 
-        using (var dbContext = new MDMDbContext(new DbContextOptionsBuilder<MDMDbContext>().UseNpgsql(connectionString).Options))
-        {
-            dbContext.Database.EnsureCreated();
-        }
-
         services.AddDbContext<MDMDbContext>(options =>
             options.UseNpgsql(connectionString));
 

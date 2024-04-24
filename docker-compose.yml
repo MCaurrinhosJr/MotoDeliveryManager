@@ -1,0 +1,23 @@
+version: '3.4'
+ 
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+
+  postgresdb:
+    image: postgres
+
+  motodeliverymanager.api:
+    image: ${DOCKER_REGISTRY-}motodeliverymanagerapi
+    build:
+      context: .
+      dockerfile: MotoDeliveryManager.Api/Dockerfile
+
+  motodeliverymanager.rabbitmqconsumer:
+    image: ${DOCKER_REGISTRY-}motodeliverymanagerrabbitmqconsumer
+    build:
+      context: .
+      dockerfile: MotoDeliveryManager.RabbitMqConsumer/Dockerfile
+
+volumes:
+  postgres_data:
