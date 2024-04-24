@@ -10,3 +10,8 @@ Importante verificar se os dados do arquivo appsettings foram alterados (no proj
 - Excute o comando "Get-DbContext", será localizado o arquivo "MDMDbContext";
 - Após o Arquivo ser localizado execute o comando "Update-Database";
 - Caso ocorra erro Build o projeto e repita o passo anterior;
+
+### Para iniciar os projetos
+
+- Para iniciar os projetos pelo visual studio é necessario alterar para iniciar mais de um projeto (Project -> Configure startup projects...);
+- Selecione a opção "Multiple Startup Projects" e selecione o Action "Start" para os projetos "MotoDeliveryManager.Api" e "MotoDeliveryManager.RabbitMqConsumer";
